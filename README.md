@@ -25,7 +25,7 @@ To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of
 
 4. Run the model worker which will also start the download of the model Llava-1.6-34b from HuggingFace. 
 
-    `python3 llava/serve/model_worker.py --model-path llava-hf/llava-v1.6-34b-hf`
+    `python3 llava/serve/model_worker.py --model-path liuhaotian/llava-v1.6-34b`
 
 
     > You can try other models like `mlx-community/llava-v1.6-34b-4bit` (LLaVA-34b quantized model) or `llava-hf/llava-v1.6-mistral-7b-hf` (LLaVA-Mistral-7b model). Unfortunately I couldn't get newer models like Phi3-vision to work because they require a newer version of transformers library which conflict with the rest of the code in this demo. 
