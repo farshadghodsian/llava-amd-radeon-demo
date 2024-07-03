@@ -1,5 +1,54 @@
-# 🌋 LLaVA: Large Language and Vision Assistant
+# LLaVA Vision Model  Demo on Radeon Pro GPUs
 
+## Prerequistes
+Ensure you have ROCm and PyTorch+ROCm installed on your system. This has been tested working with `ROCM 6.1.2` and `torch==2.3.1+rocm6.0`. 
+
+To install ROCm please refer to https://rocm.docs.amd.com/projects/install-on-linux/en/latest/
+
+To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of the time of writting this you will need to be on Linux for PyTorch+ROCm.
+
+
+## Setup Instructions:
+1. Git Clone Llava repo and cd into directory:
+
+    `git clone https://github.com/farshadghodsian/llava-amd-radeon-demo`
+    
+    `cd LLaVA`
+
+2. Install pre-requisites
+
+    `pip install accelerate fastchat gradio transformers=4.37.2`
+
+3. Add path of LLava project to your PYTHONPATH
+
+    eg. `export PYTHONPATH=/home/$USER/Documents/LLaVA/:$PYTHONPATH`
+
+4. Run the model worker which will also start the download of the model Llava-1.6-34b from HuggingFace. 
+
+    `python3 llava/serve/model_worker.py --model-path llava-hf/llava-v1.6-34b-hf`
+
+
+    > You can try other models like `mlx-community/llava-v1.6-34b-4bit` (LLaVA-34b quantized model) or `llava-hf/llava-v1.6-mistral-7b-hf` (LLaVA-Mistral-7b model). Unfortunately I couldn't get newer models like Phi3-vision to work because they require a newer version of transformers library which conflict with the rest of the code in this demo. 
+
+5. Run the controller
+
+    `python3 llava/serve/controller.py`
+
+6. Run the Gradio Web UI
+
+    `python3 llava/serve/gradio_web_server.py`
+
+7. Access the Gradio WebUI by going to http://localhost:7860
+
+8. Click on webcam button and allow access from your browser to be able to use the webcam. You can snap a photo from the webcam and then ask a question or put in a prompt and watch it load on your GPU and respond.
+
+
+
+----
+----
+<br/><br/>
+
+# 🌋 LLaVA: Large Language and Vision Assistant
 *Visual instruction tuning towards large language and vision models with GPT-4 level capabilities.*
 
 [📢 [LLaVA-NeXT Blog](https://llava-vl.github.io/blog/2024-01-30-llava-next/)] [[Project Page](https://llava-vl.github.io/)] [[Demo](https://llava.hliu.cc/)]  [[Data](https://github.com/haotian-liu/LLaVA/blob/main/docs/Data.md)] [[Model Zoo](https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md)]

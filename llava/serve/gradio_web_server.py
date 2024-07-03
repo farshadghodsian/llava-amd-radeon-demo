@@ -286,8 +286,7 @@ def http_bot(state, model_selector, temperature, top_p, max_new_tokens, request:
         fout.write(json.dumps(data) + "\n")
 
 title_markdown = ("""
-# 🌋 LLaVA: Large Language and Vision Assistant
-[[Project Page](https://llava-vl.github.io)] [[Code](https://github.com/haotian-liu/LLaVA)] [[Model](https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md)] | 📚 [[LLaVA](https://arxiv.org/abs/2304.08485)] [[LLaVA-v1.5](https://arxiv.org/abs/2310.03744)] [[LLaVA-v1.6](https://llava-vl.github.io/blog/2024-01-30-llava-1-6/)]
+# LLaVA Vision Model Demo
 """)
 
 tos_markdown = ("""
@@ -314,7 +313,7 @@ block_css = """
 
 def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
     textbox = gr.Textbox(show_label=False, placeholder="Enter text and press ENTER", container=False)
-    with gr.Blocks(title="LLaVA", theme=gr.themes.Default(), css=block_css) as demo:
+    with gr.Blocks(title="LLaVA Radeon Pro Demo", theme='remilia/Ghostly', css=block_css) as demo:
         state = gr.State()
 
         if not embed_mode:
@@ -322,6 +321,11 @@ def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
 
         with gr.Row():
             with gr.Column(scale=3):
+                if cur_dir is None:
+                    cur_dir = os.path.dirname(os.path.abspath(__file__))
+
+                gr.HTML(f"<img src='/file={cur_dir}/examples/amd-radeon-pro-logo.png'>")
+
                 with gr.Row(elem_id="model_selector_row"):
                     model_selector = gr.Dropdown(
                         choices=models,
@@ -336,12 +340,11 @@ def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
                     value="Default",
                     label="Preprocess for non-square image", visible=False)
 
-                if cur_dir is None:
-                    cur_dir = os.path.dirname(os.path.abspath(__file__))
-                gr.Examples(examples=[
-                    [f"{cur_dir}/examples/extreme_ironing.jpg", "What is unusual about this image?"],
-                    [f"{cur_dir}/examples/waterview.jpg", "What are the things I should be cautious about when I visit here?"],
-                ], inputs=[imagebox, textbox])
+                # gr.Examples(examples=[
+                #     [f"{cur_dir}/examples/extreme_ironing.jpg", "What is unusual about this image?"],
+                #     [f"{cur_dir}/examples/waterview.jpg", "What are the things I should be cautious about when I visit here?"],
+                #     [f"{cur_dir}/examples/amd-radeon-pro-logo.png", "What are the things I should be cautious about when I visit here?"],
+                # ], inputs=[imagebox, textbox])
 
                 with gr.Accordion("Parameters", open=False) as parameter_row:
                     temperature = gr.Slider(minimum=0.0, maximum=1.0, value=0.2, step=0.1, interactive=True, label="Temperature",)
@@ -467,6 +470,7 @@ if __name__ == "__main__":
     logger.info(f"args: {args}")
 
     models = get_model_list()
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
 
     logger.info(args)
     demo = build_demo(args.embed, concurrency_count=args.concurrency_count)
@@ -475,5 +479,6 @@ if __name__ == "__main__":
     ).launch(
         server_name=args.host,
         server_port=args.port,
-        share=args.share
+        share=args.share,
+        allowed_paths=[f"{cur_dir}/examples/amd-radeon-pro-logo.png"]
     )

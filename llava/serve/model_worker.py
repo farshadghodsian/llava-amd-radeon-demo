@@ -257,7 +257,7 @@ if __name__ == "__main__":
         default="http://localhost:21002")
     parser.add_argument("--controller-address", type=str,
         default="http://localhost:21001")
-    parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
+    parser.add_argument("--model-path", type=str, default="llava-hf/llava-v1.6-34b-hf") #
     parser.add_argument("--model-base", type=str, default=None)
     parser.add_argument("--model-name", type=str)
     parser.add_argument("--device", type=str, default="cuda")
