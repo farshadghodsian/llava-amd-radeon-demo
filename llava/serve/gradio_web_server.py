@@ -287,6 +287,7 @@ def http_bot(state, model_selector, temperature, top_p, max_new_tokens, request:
 
 title_markdown = ("""
 # LLaVA Vision Model Demo
+📄 [[Code](https://github.com/farshadghodsian/llava-amd-radeon-demo)] | 📚 [[Forked from haotian-liu/LLaVA](https://github.com/haotian-liu/LLaVA/)]  | 🌋 [[LLaVa Project Page](https://llava-vl.github.io/)]
 """)
 
 tos_markdown = ("""
@@ -324,7 +325,11 @@ def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
                 if cur_dir is None:
                     cur_dir = os.path.dirname(os.path.abspath(__file__))
 
-                gr.HTML(f"<img src='/file={cur_dir}/examples/amd-radeon-pro-logo.png'>")
+                # Removed use of AMD Radeon Pro logo due to legal reasons
+                # gr.HTML(f"<img src='/file={cur_dir}/examples/amd-radeon-pro-logo.png'>")
+
+                with gr.Row(elem_id="instructions_row"):
+                    instructions = gr.HTML(value="<h4>Instructions:</h4><p>Please select a model, upload an image, and adjust the parameters as desired. </p></p> You can also use your webcam to take a photo by clicking on the small webcam icon or paste directly from your clip board.")
 
                 with gr.Row(elem_id="model_selector_row"):
                     model_selector = gr.Dropdown(
