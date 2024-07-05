@@ -1,7 +1,11 @@
 # LLaVA Vision Model  Demo on Radeon Pro GPUs
 
+## Acknowledgement
+Thank you to Haotian Liu and the LLaVa team for their great work on bringing us LLaVa. This repo was forked and modified from their original demo code at https://github.com/haotian-liu/LLaVA/.
+
+
 ## Prerequistes
-Ensure you have ROCm and PyTorch+ROCm installed on your system. This has been tested working with `ROCM 6.1.2` and `torch==2.3.1+rocm6.0`. 
+Ensure you have ROCm and PyTorch+ROCm installed on your system. This has been tested working with `ROCM 6.1.2` and `torch==2.3.1+rocm6.1`. 
 
 To install ROCm please refer to https://rocm.docs.amd.com/projects/install-on-linux/en/latest/
 
@@ -9,7 +13,7 @@ To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of
 
 
 ## Setup Instructions:
-1. Git Clone Llava repo and cd into directory:
+1. Git Clone Llava repo and cd into directory: 
 
     `git clone https://github.com/farshadghodsian/llava-amd-radeon-demo`
     
@@ -23,16 +27,16 @@ To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of
 
     eg. `export PYTHONPATH=/home/$USER/Documents/LLaVA/:$PYTHONPATH`
 
-4. Run the model worker which will also start the download of the model Llava-1.6-34b from HuggingFace. 
+4. Run the controller
+
+    `python3 llava/serve/controller.py`
+
+5. Run the model worker which will also start the download of the model Llava-1.6-34b from HuggingFace. The above controller needs to be running before you start a model worker or you will get an error
 
     `python3 llava/serve/model_worker.py --model-path liuhaotian/llava-v1.6-34b`
 
 
-    > You can try other models like `mlx-community/llava-v1.6-34b-4bit` (LLaVA-34b quantized model) or `llava-hf/llava-v1.6-mistral-7b-hf` (LLaVA-Mistral-7b model). Unfortunately I couldn't get newer models like Phi3-vision to work because they require a newer version of transformers library which conflict with the rest of the code in this demo. 
-
-5. Run the controller
-
-    `python3 llava/serve/controller.py`
+    > You can also try other models from [this list](https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md) such as `liuhaotian/llava-v1.6-mistral-7b` (LLaVA-Mistral-7b model). Unfortunately newer models like Phi3-vision wont work because they require a newer version of transformers library which conflict with the rest of the code in this demo. 
 
 6. Run the Gradio Web UI
 
@@ -41,12 +45,53 @@ To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of
 7. Access the Gradio WebUI by going to http://localhost:7860
 
 8. Click on webcam button and allow access from your browser to be able to use the webcam. You can snap a photo from the webcam and then ask a question or put in a prompt and watch it load on your GPU and respond.
+<br/>
 
+## Loading a model in 4-bit using Bitsandbytes on Radeon GPUs (gfx1100)
 
+### Prerequites
+You will need to have PyTorch+ROCm6.1 nightly installed, as well as, bitsandbytes from the ROCm/bitsandbytes rocm_enabled branch. 
+
+To install PyTorch+ROCm6.1:
+`pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.1/`
+
+To install ROCM supported bitsandbytes library:
+```
+git clone --recurse https://github.com/ROCm/bitsandbytes
+cd bitsandbytes
+git checkout rocm_enabled
+pip install -r requirements-dev.txt
+cmake -DCOMPUTE_BACKEND=hip -DBNB_ROCM_ARCH="gfx1100" -S .
+make
+pip install .
+```
+
+Once you have the above libraries installed you can run the model_worker.py with `--load-4bit` flag to load larger models in 4-bit mode so that they fit on a single GPU.
+> Note: Radeon GPUs do not support HIPBLASLT library so you will need to tell Pytorch not to use it by setting `TORCH_BLAS_PREFER_HIPBLASLT=0 `. 
+
+You can run the model worker with the following command:
+
+`TORCH_BLAS_PREFER_HIPBLASLT=0 python3 llava/serve/model_worker.py --load-4bit --model-path liuhaotian/llava-v1.6-mistral-7b`
+
+This should allow you to run the LLava-34b model 4-bit on a single Radeon GPU as it should only take up 18.42GiB instead of about 65GiB.
+<br/>
+
+## 🚫 Loading Model in 8-bit using bitsandbytes on Radeon GPUs currently not supported 
+The `--load-8bit` flag can also be used in place of `--load-4bit` to load Llava-34B in about 35.01Gi of VRAM however it 
+ will fail on inference with the follow error on Radeon GPUs (gfx1100):
+```2024-07-05 17:06:40 | ERROR | stderr |     out32, Sout32 = F.igemmlt(C32A, state.CxB, SA, state.SB)
+2024-07-05 17:06:40 | ERROR | stderr |   File "/home/amd-user/.local/lib/python3.10/site-packages/bitsandbytes/functional.py", line 2388, in igemmlt
+2024-07-05 17:06:40 | ERROR | stderr |     raise Exception("cublasLt ran into an error!")
+2024-07-05 17:06:40 | ERROR | stderr | Exception: cublasLt ran into an error!
+2024-07-05 17:06:44 | INFO | stdout | Caught Unknown Error
+```
+<br/>
 
 ----
 ----
-<br/><br/>
+<br/>
+
+##### (Below from original LlaVa repo Readme)
 
 # 🌋 LLaVA: Large Language and Vision Assistant
 *Visual instruction tuning towards large language and vision models with GPT-4 level capabilities.*
