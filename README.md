@@ -21,7 +21,7 @@ To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of
 
 2. Install pre-requisites
 
-    `pip install accelerate fastchat gradio transformers=4.37.2`
+    `pip install accelerate fastchat gradio transformers==4.37.2`
 
 3. Add path of LLava project to your PYTHONPATH
 
@@ -53,7 +53,12 @@ To install Pytorch+ROCm refer to https://pytorch.org/get-started/locally/. As of
 You will need to have PyTorch+ROCm6.1 nightly installed, as well as, bitsandbytes from the ROCm/bitsandbytes rocm_enabled branch. 
 
 To install PyTorch+ROCm6.1:
+
 `pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.1/`
+
+You will also need to install build prerequisites before you can build bitsandbyte from source:
+
+`sudo apt install build-essential cmake libstdc++-12-dev`
 
 To install ROCM supported bitsandbytes library:
 ```
@@ -67,11 +72,11 @@ pip install .
 ```
 
 Once you have the above libraries installed you can run the model_worker.py with `--load-4bit` flag to load larger models in 4-bit mode so that they fit on a single GPU.
-> Note: Radeon GPUs do not support HIPBLASLT library so you will need to tell Pytorch not to use it by setting `TORCH_BLAS_PREFER_HIPBLASLT=0 `. 
+> Note: Radeon GPUs do not support HIPBLASLT library so you will need to tell Pytorch not to use it by setting `TORCH_BLAS_PREFER_HIPBLASLT=0 `. This is not related to bitsandbytes, but an upstream [issue with PyTroch](https://github.com/pytorch/pytorch/issues/119081).
 
 You can run the model worker with the following command:
 
-`TORCH_BLAS_PREFER_HIPBLASLT=0 python3 llava/serve/model_worker.py --load-4bit --model-path liuhaotian/llava-v1.6-mistral-7b`
+`TORCH_BLAS_PREFER_HIPBLASLT=0 python3 llava/serve/model_worker.py --load-4bit --model-path liuhaotian/llava-v1.6-34b`
 
 This should allow you to run the LLava-34b model 4-bit on a single Radeon GPU as it should only take up 18.42GiB instead of about 65GiB.
 <br/>
